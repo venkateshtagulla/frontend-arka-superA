@@ -21,7 +21,7 @@ export const getBearerToken = async () => {
 
   try {
     const res = await axios.post(
-https://tirplubeoa.execute-api.ap-south-2.amazonaws.com+"/user/refresh",
+  "https://tirplubeoa.execute-api.ap-south-2.amazonaws.com/user/refresh",
       {
         refresh_token: refreshToken,
       }
