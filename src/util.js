@@ -21,11 +21,11 @@ export const getBearerToken = async () => {
 
   try {
     const res = await axios.post(
-  "https://tirplubeoa.execute-api.ap-south-2.amazonaws.com/user/refresh",
-  {
-    refresh_token: refreshToken,
-  }
-);
+      process.env.NEXT_PUBLIC_BACKEND_URL + "/user/refresh",
+      {
+        refresh_token: refreshToken,
+      }
+    );
 
     const { access_token } = res.data;
 
