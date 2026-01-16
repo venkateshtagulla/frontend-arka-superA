@@ -19,9 +19,9 @@ export default function Login() {
     }
     try {
       const response = await axios.post(
-        https://tirplubeoa.execute-api.ap-south-2.amazonaws.com+"/user/login",
-        payload
-      );
+  process.env.NEXT_PUBLIC_BACKEND_URL + "/user/login",
+  payload
+);
       const { access_token, id_token, refresh_token } = response.data;
 
       document.cookie = `access_token=${access_token}; path=/; max-age=${
