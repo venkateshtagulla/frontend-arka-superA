@@ -19,7 +19,7 @@ export default function Login() {
     }
     try {
       const response = await axios.post(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/login",
+        process.env.NEXT_PUBLIC_BACKEND_URL + "/user/login",
         payload
       );
       const { access_token, id_token, refresh_token } = response.data;
