@@ -34,7 +34,7 @@ export default function Login() {
         payload,
         {
           // 2. CRUCIAL: This must be true to match your FastAPI/AWS CORS settings
-          withCredentials: true, 
+          // withCredentials: true, 
           headers: {
             "Content-Type": "application/json",
           },
