@@ -10,30 +10,48 @@ export default function Login() {
     password: "",
   });
   const [invalid, setInvalid] = useState(false);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
+
   const login = async (e) => {
     e.preventDefault();
+    setInvalid(false);
+    
     if (!payload.email || !payload.password) {
       alert("Please fill in all fields");
       return;
     }
+
+    setLoading(true);
+
     try {
+      // 1. Fixed URL concatenation
+      const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL?.replace(/\/$/, "");
+      const loginUrl = `${baseUrl}/user/login`;
+
       const response = await axios.post(
-        process.env.NEXT_PUBLIC_BACKEND_URL + "/user/login",
-        payload
+        loginUrl,
+        payload,
+        {
+          // 2. CRUCIAL: This must be true to match your FastAPI/AWS CORS settings
+          withCredentials: true, 
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
       );
+
       const { access_token, id_token, refresh_token } = response.data;
 
-      document.cookie = `access_token=${access_token}; path=/; max-age=${
-        60 * 60
-      }`;
-      document.cookie = `refresh_token=${refresh_token}; path=/; max-age=${
-        7 * 24 * 60 * 60
-      }`;
+      // 3. Set Cookies
+      document.cookie = `access_token=${access_token}; path=/; max-age=${60 * 60}; SameSite=Lax`;
+      document.cookie = `refresh_token=${refresh_token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
 
-      localStorage.setItem("refresh_token", access_token);
+      // 4. Set LocalStorage
+      localStorage.setItem("access_token", access_token);
+      
+      // Decode JWT Payload safely
       const idPayload = JSON.parse(atob(id_token.split(".")[1]));
-
       localStorage.setItem(
         "user",
         JSON.stringify({
@@ -44,9 +62,18 @@ export default function Login() {
 
       return router.push("/");
     } catch (error) {
+      // 5. Better Error Logging
+      console.error("Login Error Details:", {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
       setInvalid(true);
+    } finally {
+      setLoading(false);
     }
   };
+
   return (
     <div className="w-screen h-screen flex place-items-center justify-center bg-cyan-700">
       <div className="w-full max-w-130 h-130 bg-white border-2 border-[#ead9e4] rounded-4xl shadow-lg p-8 text-gray-800">
@@ -60,6 +87,7 @@ export default function Login() {
             <input
               type="email"
               value={payload.email}
+              autoComplete="email"
               onChange={(e) => {
                 setInvalid(false);
                 setPayload((old) => ({ ...old, email: e.target.value }));
@@ -67,15 +95,13 @@ export default function Login() {
               className="w-full border border-gray-300 p-3 rounded-lg outline-none focus:border-gray-500"
               placeholder="Enter E-Mail"
             />
-            {invalid && (
-              <span className="text-red-500 text-sm">Invalid credentials</span>
-            )}
           </div>
           <div>
             <p className="text-xl text-gray-400">Password</p>
             <input
               type="password"
               value={payload.password}
+              autoComplete="current-password"
               onChange={(e) => {
                 setInvalid(false);
                 setPayload((old) => ({ ...old, password: e.target.value }));
@@ -84,18 +110,19 @@ export default function Login() {
               placeholder="Enter Password"
             />
             {invalid && (
-              <span className="text-red-500 text-sm">Invalid credentials</span>
+              <p className="text-red-500 text-sm mt-2 font-medium">Invalid credentials or connection error</p>
             )}
           </div>
           <button
             type="submit"
+            disabled={loading || !payload.email || !payload.password}
             className={`w-full border border-gray-200 bg-linear-to-r ${
-              !payload.email || !payload.password
-                ? "bg-gray-300"
-                : "from-[#1B6687] to-[#209CBB]"
-            } text-white text-xl p-4 rounded-lg`}
+              loading || !payload.email || !payload.password
+                ? "bg-gray-300 cursor-not-allowed"
+                : "from-[#1B6687] to-[#209CBB] hover:opacity-90 transition-opacity"
+            } text-white text-xl p-4 rounded-lg font-bold`}
           >
-            Sign In
+            {loading ? "Signing In..." : "Sign In"}
           </button>
         </form>
       </div>
