@@ -21,7 +21,7 @@ export const getBearerToken = async () => {
 
   try {
     const res = await axios.post(
-      process.env.NEXT_PUBLIC_BACKEND_URL + "/refresh",
+      process.env.NEXT_PUBLIC_BACKEND_URL + "/user/refresh",
       {
         refresh_token: refreshToken,
       }
