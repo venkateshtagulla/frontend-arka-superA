@@ -63,6 +63,7 @@ export default function Login() {
       return router.push("/");
     } catch (error) {
       // 5. Better Error Logging
+      console.log(error,"line 66");
       console.error("Login Error Details:", {
         message: error.message,
         response: error.response?.data,
